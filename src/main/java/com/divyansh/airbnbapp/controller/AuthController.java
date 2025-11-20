@@ -12,8 +12,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +24,12 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -33,107 +37,97 @@ public class AuthController {
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDTO> signup(@RequestBody SignUpRequestDTO signUpRequestDTO){
+    public ResponseEntity<UserDTO> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
         return new ResponseEntity<>(authService.signUp(signUpRequestDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
         String[] tokens = authService.login(loginDTO);
 
-        Cookie cookie = new Cookie("refreshToken",tokens[1]);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setMaxAge(7*24*60*60);
-        httpServletResponse.addCookie(cookie);
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .domain("localhost")
+                .maxAge(7 * 24 * 60 * 60)
+        .build();
+        httpServletResponse.setHeader("Set-Cookie",cookie.toString());
 
         return ResponseEntity.ok(new LoginResponseDTO(tokens[0]));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponseDTO> refresh(HttpServletRequest httpServletRequest){
+    public ResponseEntity<LoginResponseDTO> refresh(HttpServletRequest httpServletRequest) {
+        System.out.println("COOKIES → " + Arrays.toString(httpServletRequest.getCookies()));
+        log.info("Cookie: {}",Arrays.toString(httpServletRequest.getCookies()));
         String refreshToken = Arrays.stream(httpServletRequest.getCookies())
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
-                .orElseThrow(()->new AuthenticationServiceException("Refresh Token not found inside the cookies"));
+                .orElseThrow(() -> new AuthenticationServiceException("Refresh Token not found inside the cookies"));
 
         String accessToken = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(new LoginResponseDTO(accessToken));
     }
-//    @PostMapping("/google")
-//    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> body,HttpServletResponse httpServletResponse) throws Exception {
-//        String idTokenString = body.get("idToken");
-//
-//        GoogleIdToken idToken = googleIdTokenVerifier.verify(idTokenString);
-//        if (idToken == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                    .body(new ApiResponse<>("Invalid ID token"));
-//        }
-//
-//        GoogleIdToken.Payload payload = idToken.getPayload();
-//
-//        String email = payload.getEmail();
-//        String name = (String) payload.get("name");
-//
-//        OAuthResponseDTO oAuthResponseDTO = userService.loginOrCreateGoogleUser(email, name);
-//        Cookie cookie = new Cookie("refreshToken",oAuthResponseDTO.getTokens()[1]);
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
-//        cookie.setMaxAge(7*24*60*60);
-//        httpServletResponse.addCookie(cookie);
-//
-//        return ResponseEntity.ok(
-//                new ApiResponse<>(
-//                        Map.of(
-//                                "accessToken", oAuthResponseDTO.getTokens()[0],
-//                                "user", oAuthResponseDTO.getUser().getName()
-//                        )
-//                )
-//        );
-//    }
-@PostMapping("/google/callback")
-public void googleCallback(
-        HttpServletResponse response,
-        HttpServletRequest request,
-        @RequestParam(value = "credential", required = false) String credential,
-        @RequestParam(value = "id_token", required = false) String idToken
-) throws Exception {
-    System.out.println("PATH = " + request.getServletPath());
 
-    String idTokenString = credential != null ? credential : idToken;
+    @PostMapping("/google/login")
+    public ResponseEntity<?> googleLogin(
+            HttpServletResponse response,
+            @RequestBody Map<String, String> body
+    ) throws Exception {
 
-    if (idTokenString == null) {
-        response.sendRedirect("http://localhost:5173/login?error=missing_token");
-        return;
+        String idTokenString = body.get("credential");
+        // 1. Verify Google ID token
+        GoogleIdToken idTokenObj = googleIdTokenVerifier.verify(idTokenString);
+        if (idTokenObj == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Invalid Google token"));
+        }
+
+        GoogleIdToken.Payload payload = idTokenObj.getPayload();
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+
+        // 2. Your existing logic
+        OAuthResponseDTO oAuthResponseDTO = userService.loginOrCreateGoogleUser(email, name);
+        String accessToken = oAuthResponseDTO.getTokens()[0];
+        String refreshToken = oAuthResponseDTO.getTokens()[1];
+
+        // 3. Set REFRESH TOKEN as HttpOnly secure cookie
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)       // true in production
+                .sameSite("None")
+                .path("/")
+                .domain("localhost")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        // 4. Return ACCESS TOKEN in JSON
+        return ResponseEntity.ok(Map.of(
+                "accessToken", accessToken,
+                "message", "Google login success"
+        ));
     }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest req,HttpServletResponse res){
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)       // true in production
+                .sameSite("None")
+                .path("/")
+                .domain("localhost")
+                .maxAge(0)
+                .build();
 
-    GoogleIdToken idTokenObj = googleIdTokenVerifier.verify(idTokenString);
-    if (idTokenObj == null) {
-        response.sendRedirect("http://localhost:5173/login?error=invalid_token");
-        return;
+        res.addHeader("Set-Cookie", deleteCookie.toString());
+
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
-
-    GoogleIdToken.Payload payload = idTokenObj.getPayload();
-    String email = payload.getEmail();
-    String name = (String) payload.get("name");
-
-    OAuthResponseDTO oAuthResponseDTO = userService.loginOrCreateGoogleUser(email, name);
-
-    String accessToken = oAuthResponseDTO.getTokens()[0];
-    String refreshToken = oAuthResponseDTO.getTokens()[1];
-
-    Cookie cookie = new Cookie("refreshToken", refreshToken);
-    cookie.setHttpOnly(true);
-    cookie.setSecure(false);
-    cookie.setPath("/");
-    cookie.setMaxAge(7 * 24 * 60 * 60);
-    response.addCookie(cookie);
-
-    response.sendRedirect("http://localhost:5173/login?access=" + accessToken);
-}
-
-
-
 }

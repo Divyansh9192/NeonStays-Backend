@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public OAuthResponseDTO loginOrCreateGoogleUser(String email, String name) {
         User user = userRepository.findByEmail(email).orElse(null);
-        log.info("Getting User with id: {}",user.getId());
         if(user==null) {
             String randomPassword = UUID.randomUUID().toString();
             user = new User();

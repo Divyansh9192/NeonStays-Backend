@@ -19,8 +19,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
+
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -58,7 +62,20 @@ public class WebSecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .exceptionHandling(exHandler ->exHandler.accessDeniedHandler(accessDeniedHandler()));
+                .headers(headers -> headers
+                        // disable COOP
+                        .crossOriginOpenerPolicy(coop ->
+                                coop.policy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.UNSAFE_NONE)
+                        )
+
+                        // disable COEP
+                        .crossOriginEmbedderPolicy(coep ->
+                                coep.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.UNSAFE_NONE)
+                        )
+                )
+
+
+                .exceptionHandling(exHandler -> exHandler.accessDeniedHandler(accessDeniedHandler()));
         return httpSecurity.build();
     }
     @Bean
