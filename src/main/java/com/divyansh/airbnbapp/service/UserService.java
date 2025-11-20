@@ -11,6 +11,8 @@ public interface UserService {
 
     User getUserById(Long id);
 
+    User save(User user);
+
     void updateProfile(ProfileUpdateRequestDTO profileUpdateRequestDTO);
 
     UserDTO getMyProfile();

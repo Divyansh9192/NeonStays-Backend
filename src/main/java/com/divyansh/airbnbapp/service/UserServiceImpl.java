@@ -60,6 +60,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
     public void updateProfile(ProfileUpdateRequestDTO profileUpdateRequestDTO) {
         User user = getCurrentUser();
 

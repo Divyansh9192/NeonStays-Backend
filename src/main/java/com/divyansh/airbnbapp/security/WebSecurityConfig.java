@@ -1,15 +1,12 @@
 package com.divyansh.airbnbapp.security;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.divyansh.airbnbapp.handlers.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,7 +27,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.io.IOException;
 import java.util.List;
 
 @Configuration
@@ -42,6 +38,8 @@ public class WebSecurityConfig {
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver handlerExceptionResolver;
+
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -61,6 +59,10 @@ public class WebSecurityConfig {
                         // Allow CORS preflight OPTIONS requests
                         .anyRequest().permitAll()
                 )
+                .oauth2Login(oauth2Congif -> oauth2Congif
+                        .failureUrl("/login?error=true")
+                        .successHandler(oAuth2SuccessHandler))
+
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(headers -> headers
                         // disable COOP
@@ -73,6 +75,7 @@ public class WebSecurityConfig {
                                 coep.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.UNSAFE_NONE)
                         )
                 )
+
 
 
                 .exceptionHandling(exHandler -> exHandler.accessDeniedHandler(accessDeniedHandler()));

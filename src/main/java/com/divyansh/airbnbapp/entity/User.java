@@ -3,9 +3,7 @@ package com.divyansh.airbnbapp.entity;
 import com.divyansh.airbnbapp.entity.enums.Gender;
 import com.divyansh.airbnbapp.entity.enums.Role;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +17,9 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "app_user")
 public class User implements UserDetails {
     @Id
