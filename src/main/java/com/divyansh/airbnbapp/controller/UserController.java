@@ -3,7 +3,6 @@ package com.divyansh.airbnbapp.controller;
 import com.divyansh.airbnbapp.dto.BookingDTO;
 import com.divyansh.airbnbapp.dto.ProfileUpdateRequestDTO;
 import com.divyansh.airbnbapp.dto.UserDTO;
-import com.divyansh.airbnbapp.exception.ResourceNotFoundException;
 import com.divyansh.airbnbapp.service.BookingService;
 import com.divyansh.airbnbapp.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +28,12 @@ public class UserController {
         userService.updateProfile(profileUpdateRequestDTO);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/myBookings")
+    @GetMapping("/bookings")
     public ResponseEntity<List<BookingDTO>> getMyBookings(){
         return ResponseEntity.ok(bookingService.getMyBookings());
+    }
+    @PatchMapping("promote-to-host")
+    public ResponseEntity<?> promoteUser(){
+        return ResponseEntity.ok(userService.promoteUser());
     }
 }

@@ -33,8 +33,6 @@ import java.util.UUID;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserService userService;
-    private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
     @PostMapping("/signup")
     public ResponseEntity<UserDTO> signup(@RequestBody SignUpRequestDTO signUpRequestDTO) {
@@ -49,8 +47,8 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(false)
+                .sameSite("Lax")
                 .path("/")
                 .domain("localhost")
                 .maxAge(7 * 24 * 60 * 60)
@@ -118,8 +116,8 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletRequest req,HttpServletResponse res){
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(true)       // true in production
-                .sameSite("None")
+                .secure(false)       // true in production
+                .sameSite("Lax")
                 .path("/")
                 .domain("localhost")
                 .maxAge(0)

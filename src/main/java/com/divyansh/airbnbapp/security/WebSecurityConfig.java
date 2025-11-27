@@ -99,25 +99,32 @@ public class WebSecurityConfig {
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // REQUIRED for cookies (refresh token)
+        config.setAllowCredentials(true);
+
+        // Your frontend
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+
+        // Allow ALL typical headers including Authorization
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+
+        // Expose Authorization (required for frontend)
+        config.setExposedHeaders(List.of("Authorization"));
+
+        // Methods allowed
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        // MOST IMPORTANT: allow sending cookies even if Chrome blocks certain patterns
+        config.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        // Normal frontend CORS
-        CorsConfiguration appConfig = new CorsConfiguration();
-        appConfig.setAllowCredentials(true);
-        appConfig.setAllowedOrigins(List.of("http://localhost:5173"));
-        appConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        appConfig.setAllowedHeaders(List.of("*"));
-        source.registerCorsConfiguration("/**", appConfig);
-
-        // ⭐ SPECIAL FIX for Google redirect POST (NO ORIGIN HEADER)
-        CorsConfiguration googleConfig = new CorsConfiguration();
-        googleConfig.addAllowedOriginPattern("*"); // allow requests with NO ORIGIN
-        googleConfig.setAllowedMethods(List.of("POST"));
-        googleConfig.setAllowedHeaders(List.of("*"));
-        source.registerCorsConfiguration("/api/v1/auth/google/callback", googleConfig);
+        source.registerCorsConfiguration("/**", config);
 
         return source;
     }
+
 
 
 }

@@ -45,5 +45,6 @@ public class Hotel {
     private List<Room> rooms;
 
     @ManyToOne(optional = false)
+    @JsonIgnore
     private User owner;
 }

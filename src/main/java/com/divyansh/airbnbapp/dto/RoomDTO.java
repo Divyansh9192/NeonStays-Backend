@@ -14,4 +14,5 @@ public class RoomDTO {
     private String[] amenities;
     private Integer totalCount;
     private Integer capacity;
+    private BigDecimal finalPrice;
 }

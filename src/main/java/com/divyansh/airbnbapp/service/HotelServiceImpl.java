@@ -36,13 +36,12 @@ public class HotelServiceImpl implements HotelService{
     public HotelDTO createNewHotel(HotelDTO hotelDTO) {
         log.info("Creating a new hotel with name : {}",hotelDTO.getName());
         Hotel hotel = modelMapper.map(hotelDTO,Hotel.class);
-        hotel.setActive(false);
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         hotel.setOwner(user);
 
         hotel = hotelRepository.save(hotel);
-        log.info("Creating a new hotel with id : {}",hotelDTO.getId());
+        log.info("Creating a new hotel with id : {}",hotel.getId());
         return modelMapper.map(hotel,HotelDTO.class);
     }
 
@@ -116,11 +115,6 @@ public class HotelServiceImpl implements HotelService{
             throw new UnauthorizedException("This user does not own this hotel with id:"+id);
         }
         hotel.setActive(true);
-
-        //assuming only doing it once
-        for(Room room:hotel.getRooms()){
-            inventoryService.initializeRoomForAYear(room);
-        }
     }
 
     @Override
@@ -134,6 +128,19 @@ public class HotelServiceImpl implements HotelService{
                 .map((element) -> modelMapper.map(element, RoomDTO.class))
                 .toList();
         return new HotelInfoDTO(modelMapper.map(hotel,HotelDTO.class),rooms,photos);
+    }
+
+    @Override
+    public void deactivateHotelById(Long hotelId) {
+        log.info("Deactivating the hotel with id: {}",hotelId);
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(()-> new ResourceNotFoundException("Hotel not found with ID:"+ hotelId));
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!user.equals(hotel.getOwner())){
+            throw new UnauthorizedException("This user does not own this hotel with id:"+hotelId);
+        }
+        hotel.setActive(false);
     }
 
 }

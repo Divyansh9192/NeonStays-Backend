@@ -88,6 +88,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public Void promoteUser() {
+        User user = getCurrentUser();
+        user.setRoles(Set.of(Role.HOTEL_MANAGER,Role.GUEST));
+        userRepository.save(user);
+        return null;
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
          return userRepository.findByEmail(username).orElse(null);
     }

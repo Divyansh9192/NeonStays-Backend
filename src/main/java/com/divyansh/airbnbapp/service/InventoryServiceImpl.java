@@ -32,7 +32,7 @@ import static com.divyansh.airbnbapp.util.AppUtils.getCurrentUser;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class InventoryServiceImpl implements InventoryService{
+public class InventoryServiceImpl implements InventoryService {
     private final RoomRepository roomRepository;
     private final ModelMapper modelMapper;
 
@@ -43,7 +43,7 @@ public class InventoryServiceImpl implements InventoryService{
     public void initializeRoomForAYear(Room room) {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusYears(1);
-        for(;!today.isAfter(endDate);today=today.plusDays(1)){
+        for (; !today.isAfter(endDate); today = today.plusDays(1)) {
             Inventory inventory = Inventory.builder()
                     .hotel(room.getHotel())
                     .room(room)
@@ -62,33 +62,29 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Override
     public void deleteAllInventories(Room room) {
-        log.info("Deleting the inventories of room with id: {}",room.getId());
+        log.info("Deleting the inventories of room with id: {}", room.getId());
         inventoryRepository.deleteByRoom(room);
     }
 
     @Override
-    public List<HotelPriceDTO> searchHotels(HotelSearchRequestDTO hotelSearchRequestDTO) {
-        log.info("Searching hotel for {} city, from {} to {}",hotelSearchRequestDTO.getCity()
-                                                             ,hotelSearchRequestDTO.getStartDate()
-                                                             ,hotelSearchRequestDTO.getEndDate());
-//        long dateCount = ChronoUnit.DAYS.between(hotelSearchRequestDTO.getStartDate(),hotelSearchRequestDTO.getEndDate())+1;
-
+    public Page<HotelPriceDTO> searchHotels(HotelSearchRequestDTO hotelSearchRequestDTO) {
+        log.info("Searching hotel for {} city, from {} to {}", hotelSearchRequestDTO.getCity()
+                , hotelSearchRequestDTO.getStartDate()
+                , hotelSearchRequestDTO.getEndDate());
+        Pageable pageable = PageRequest.of(hotelSearchRequestDTO.getPage(), hotelSearchRequestDTO.getSize());
         return hotelMinRepository.findHotelWithAvailableInventory(hotelSearchRequestDTO.getCity(),
-                                                            hotelSearchRequestDTO.getStartDate(),
-                                                            hotelSearchRequestDTO.getEndDate()
-
-        );
+                hotelSearchRequestDTO.getStartDate(), hotelSearchRequestDTO.getEndDate(), pageable);
     }
 
     @Override
     public List<InventoryDTO> getAllInventoryByRoom(Long roomId) {
-        log.info("Getting all the inventory by room for room with Id: {}",roomId);
+        log.info("Getting all the inventory by room for room with Id: {}", roomId);
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(()-> new ResourceNotFoundException("Room not found with Id: "+roomId));
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with Id: " + roomId));
         User user = getCurrentUser();
-        if(!user.getId().equals(room.getHotel().getOwner().getId())){
+        if (!user.getId().equals(room.getHotel().getOwner().getId())) {
             try {
-                throw new AccessDeniedException("You are not the Owner of the hotel"+room.getHotel().getId());
+                throw new AccessDeniedException("You are not the Owner of the hotel" + room.getHotel().getId());
             } catch (AccessDeniedException e) {
                 throw new RuntimeException(e);
             }
@@ -103,13 +99,13 @@ public class InventoryServiceImpl implements InventoryService{
     @Transactional
 
     public void updateInventory(Long roomId, UpdateInventoryRequestDTO updateInventoryRequestDTO) {
-        log.info("Updating all the inventory for room with Id: {}",roomId);
+        log.info("Updating all the inventory for room with Id: {}", roomId);
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(()-> new ResourceNotFoundException("Room not found with Id: "+roomId));
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with Id: " + roomId));
         User user = getCurrentUser();
-        if(!user.getId().equals(room.getHotel().getOwner().getId())){
+        if (!user.getId().equals(room.getHotel().getOwner().getId())) {
             try {
-                throw new AccessDeniedException("You are not the Owner of the hotel"+room.getHotel().getId());
+                throw new AccessDeniedException("You are not the Owner of the hotel" + room.getHotel().getId());
             } catch (AccessDeniedException e) {
                 throw new RuntimeException(e);
             }
@@ -123,8 +119,5 @@ public class InventoryServiceImpl implements InventoryService{
                 updateInventoryRequestDTO.getEndDate(),
                 updateInventoryRequestDTO.getSurgeFactor(),
                 updateInventoryRequestDTO.getClosed());
-
-
-
     }
 }

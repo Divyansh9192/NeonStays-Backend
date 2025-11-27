@@ -101,8 +101,8 @@
         <dependency>
             <groupId>com.stripe</groupId>
             <artifactId>stripe-java</artifactId>
-            <version>30.3.0-alpha.1</version>
-        </dependency>
+            <version>24.1.0</version>
+            </dependency>
     </dependencies>
 
     <build>

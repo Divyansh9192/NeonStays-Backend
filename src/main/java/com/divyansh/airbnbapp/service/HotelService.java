@@ -20,4 +20,6 @@ public interface HotelService {
     void activateHotelById(Long id);
 
     HotelInfoDTO getHotelInfoById(Long hotelId);
+
+    void deactivateHotelById(Long hotelId);
 }

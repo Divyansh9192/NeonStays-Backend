@@ -1,11 +1,15 @@
 package com.divyansh.airbnbapp.entity;
 
 import com.divyansh.airbnbapp.entity.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.awt.print.Book;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -27,5 +31,11 @@ public class Guest {
     private Gender gender;
 
     private Integer age;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

@@ -97,7 +97,7 @@ public class BookingServiceImpl implements BookingService{
                 .amount(totalPrice)
                 .build();
 
-        booking = bookingRepository.save(booking);
+            booking = bookingRepository.save(booking);
 
         return modelMapper.map(booking, BookingDTO.class);
     }

@@ -53,8 +53,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(false)
+                .sameSite("Lax")
                 .path("/")
                 .domain("localhost")
                 .maxAge(7 * 24 * 60 * 60)

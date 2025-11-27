@@ -25,7 +25,7 @@ public class HotelBrowseController {
     private final HotelService hotelService;
 
     @PostMapping
-    public ResponseEntity<List<HotelPriceDTO>> searchHotels(
+    public ResponseEntity<Page<HotelPriceDTO>> searchHotels(
             @RequestBody HotelSearchRequestDTO hotelSearchRequestDTO
     ) {
         ;

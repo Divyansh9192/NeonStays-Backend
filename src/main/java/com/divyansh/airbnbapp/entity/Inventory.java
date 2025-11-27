@@ -3,6 +3,7 @@ package com.divyansh.airbnbapp.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -60,7 +61,7 @@ public class Inventory {
     @CreationTimestamp
     private LocalDateTime createAt;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
 }

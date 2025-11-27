@@ -42,7 +42,7 @@ public class AuthService {
         User newUser = modelMapper.map(signUpRequestDTO, User.class);
         newUser.setRoles(Set.of(Role.GUEST));
         newUser.setPassword(passwordEncoder.encode(signUpRequestDTO.getPassword()));
-
+;
         newUser = userRepository.save(newUser);
 
         return modelMapper.map(newUser, UserDTO.class);

@@ -4,6 +4,7 @@ import com.divyansh.airbnbapp.dto.OAuthResponseDTO;
 import com.divyansh.airbnbapp.dto.ProfileUpdateRequestDTO;
 import com.divyansh.airbnbapp.dto.UserDTO;
 import com.divyansh.airbnbapp.entity.User;
+import org.springframework.http.HttpStatusCode;
 
 public interface UserService {
 
@@ -16,4 +17,6 @@ public interface UserService {
     void updateProfile(ProfileUpdateRequestDTO profileUpdateRequestDTO);
 
     UserDTO getMyProfile();
+
+    Void promoteUser();
 }
