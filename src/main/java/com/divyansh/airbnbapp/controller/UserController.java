@@ -1,6 +1,7 @@
 package com.divyansh.airbnbapp.controller;
 
 import com.divyansh.airbnbapp.dto.BookingDTO;
+import com.divyansh.airbnbapp.dto.BookingResponseDTO;
 import com.divyansh.airbnbapp.dto.ProfileUpdateRequestDTO;
 import com.divyansh.airbnbapp.dto.UserDTO;
 import com.divyansh.airbnbapp.service.BookingService;
@@ -29,7 +30,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/bookings")
-    public ResponseEntity<List<BookingDTO>> getMyBookings(){
+    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(){
         return ResponseEntity.ok(bookingService.getMyBookings());
     }
     @PatchMapping("promote-to-host")

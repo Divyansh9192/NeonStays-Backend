@@ -1,9 +1,6 @@
 package com.divyansh.airbnbapp.service;
 
-import com.divyansh.airbnbapp.dto.BookingDTO;
-import com.divyansh.airbnbapp.dto.BookingRequestDTO;
-import com.divyansh.airbnbapp.dto.GuestDTO;
-import com.divyansh.airbnbapp.dto.HotelReportDTO;
+import com.divyansh.airbnbapp.dto.*;
 import com.divyansh.airbnbapp.entity.*;
 import com.divyansh.airbnbapp.entity.enums.BookingStatus;
 import com.divyansh.airbnbapp.exception.ResourceNotFoundException;
@@ -307,12 +304,11 @@ public class BookingServiceImpl implements BookingService{
     }
 
     @Override
-    public List<BookingDTO> getMyBookings() {
+    public List<BookingResponseDTO> getMyBookings() {
         User user = getCurrentUser();
-
         return bookingRepository.findByUser(user)
                 .stream()
-                .map((element) -> modelMapper.map(element, BookingDTO.class))
+                .map((element) -> modelMapper.map(element, BookingResponseDTO.class))
                 .collect(Collectors.toList());
     }
 

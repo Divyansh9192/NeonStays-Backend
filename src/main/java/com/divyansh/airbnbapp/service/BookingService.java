@@ -1,10 +1,7 @@
 package com.divyansh.airbnbapp.service;
 
 
-import com.divyansh.airbnbapp.dto.BookingDTO;
-import com.divyansh.airbnbapp.dto.BookingRequestDTO;
-import com.divyansh.airbnbapp.dto.GuestDTO;
-import com.divyansh.airbnbapp.dto.HotelReportDTO;
+import com.divyansh.airbnbapp.dto.*;
 import com.stripe.model.Event;
 
 import java.time.LocalDate;
@@ -29,5 +26,5 @@ public interface BookingService {
 
     HotelReportDTO getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate);
 
-    List<BookingDTO> getMyBookings();
+    List<BookingResponseDTO> getMyBookings();
 }

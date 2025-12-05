@@ -1,14 +1,14 @@
 package com.divyansh.airbnbapp.service;
 
-import com.divyansh.airbnbapp.dto.HotelDTO;
-import com.divyansh.airbnbapp.dto.HotelInfoDTO;
-import com.divyansh.airbnbapp.dto.RoomDTO;
+import com.divyansh.airbnbapp.dto.*;
 import com.divyansh.airbnbapp.entity.Hotel;
+import com.divyansh.airbnbapp.entity.Inventory;
 import com.divyansh.airbnbapp.entity.Room;
 import com.divyansh.airbnbapp.entity.User;
 import com.divyansh.airbnbapp.exception.ResourceNotFoundException;
 import com.divyansh.airbnbapp.exception.UnauthorizedException;
 import com.divyansh.airbnbapp.repository.HotelRepository;
+import com.divyansh.airbnbapp.repository.InventoryRepository;
 import com.divyansh.airbnbapp.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ import static com.divyansh.airbnbapp.util.AppUtils.getCurrentUser;
 @Slf4j
 @RequiredArgsConstructor
 public class HotelServiceImpl implements HotelService{
+    private final InventoryRepository inventoryRepository;
 
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;

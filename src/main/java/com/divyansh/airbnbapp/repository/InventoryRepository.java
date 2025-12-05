@@ -55,6 +55,16 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             @Param("roomsCount") Integer roomsCount
     );
 
+    @Query("""
+            SELECT i
+            FROM Inventory i
+            WHERE i.room.id = :roomId
+              AND i.date BETWEEN :start AND :end
+              AND i.closed=false
+            ORDER BY i.date ASC""")
+    List<Inventory> findByRoomAndDateRange(Long roomId, LocalDate start, LocalDate end);
+
+
     @Transactional
     @Modifying
     @Query("""
@@ -118,7 +128,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     );
 
     List<Inventory> findByHotelAndDateBetween(Hotel hotel
-                                              ,LocalDate startDate, LocalDate endDate);
+            , LocalDate startDate, LocalDate endDate);
 
     List<Inventory> findByRoomOrderByDate(Room room);
 

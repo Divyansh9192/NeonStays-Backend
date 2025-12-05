@@ -2,8 +2,10 @@ package com.divyansh.airbnbapp.service;
 
 import com.divyansh.airbnbapp.dto.HotelDTO;
 import com.divyansh.airbnbapp.dto.HotelInfoDTO;
+import com.divyansh.airbnbapp.dto.RoomPriceResponseDTO;
 import com.divyansh.airbnbapp.entity.Hotel;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface HotelService {

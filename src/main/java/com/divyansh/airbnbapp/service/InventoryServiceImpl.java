@@ -1,9 +1,6 @@
 package com.divyansh.airbnbapp.service;
 
-import com.divyansh.airbnbapp.dto.HotelPriceDTO;
-import com.divyansh.airbnbapp.dto.HotelSearchRequestDTO;
-import com.divyansh.airbnbapp.dto.InventoryDTO;
-import com.divyansh.airbnbapp.dto.UpdateInventoryRequestDTO;
+import com.divyansh.airbnbapp.dto.*;
 import com.divyansh.airbnbapp.entity.Inventory;
 import com.divyansh.airbnbapp.entity.Room;
 import com.divyansh.airbnbapp.entity.User;
@@ -119,5 +116,37 @@ public class InventoryServiceImpl implements InventoryService {
                 updateInventoryRequestDTO.getEndDate(),
                 updateInventoryRequestDTO.getSurgeFactor(),
                 updateInventoryRequestDTO.getClosed());
+    }
+
+    @Override
+    public RoomPriceResponseDTO getRoomDynamicPrice(Long roomId, LocalDate start, LocalDate end) {
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
+
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+
+        List<Inventory> inventory = inventoryRepository
+                .findByRoomAndDateRange(roomId, start, end);
+
+        if (inventory.isEmpty()) {
+            throw new ResourceNotFoundException("No pricing data found for selected dates");
+        }
+
+        var dailyPrices = inventory.stream()
+                .map(i -> new DailyPriceDTO(i.getDate(), i.getPrice()))
+                .toList();
+
+        BigDecimal total = dailyPrices.stream()
+                .map(DailyPriceDTO::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new RoomPriceResponseDTO(
+                roomId,
+                dailyPrices.size(),
+                dailyPrices,
+                total
+        );
     }
 }

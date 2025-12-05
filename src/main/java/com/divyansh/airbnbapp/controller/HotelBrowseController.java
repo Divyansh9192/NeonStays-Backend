@@ -1,9 +1,6 @@
 package com.divyansh.airbnbapp.controller;
 
-import com.divyansh.airbnbapp.dto.HotelDTO;
-import com.divyansh.airbnbapp.dto.HotelInfoDTO;
-import com.divyansh.airbnbapp.dto.HotelPriceDTO;
-import com.divyansh.airbnbapp.dto.HotelSearchRequestDTO;
+import com.divyansh.airbnbapp.dto.*;
 import com.divyansh.airbnbapp.service.HotelService;
 import com.divyansh.airbnbapp.service.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -37,4 +34,15 @@ public class HotelBrowseController {
     public ResponseEntity<HotelInfoDTO> getHotelInfo(@PathVariable Long hotelId){
         return ResponseEntity.ok(hotelService.getHotelInfoById(hotelId));
     }
+    @GetMapping("/{roomId}/price")
+    public ResponseEntity<RoomPriceResponseDTO> getPrice(
+            @PathVariable Long roomId,
+            @RequestParam LocalDate start,
+            @RequestParam LocalDate end
+    ) {
+        return ResponseEntity.ok(
+                inventoryService.getRoomDynamicPrice(roomId, start, end)
+        );
+    }
+
 }
