@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -26,6 +27,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final UserService userService;
     private final JWTService jwtService;
+    @Value("${frontend.url}")
+    private String FRONTEND_URL;
+
 
     @Override
     public void onAuthenticationSuccess(
@@ -61,6 +65,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build();
         response.addHeader("Set-Cookie",cookie.toString());
         // Redirect to frontend
-        response.sendRedirect("http://localhost:5173/oauth/success");
+        response.sendRedirect(FRONTEND_URL+"/oauth/success");
     }
 }
