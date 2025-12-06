@@ -51,7 +51,7 @@ public class WebSecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/google/callback").permitAll()
-
+                        .requestMatchers("/", "/health").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
                         .requestMatchers("/bookings/**").authenticated()
