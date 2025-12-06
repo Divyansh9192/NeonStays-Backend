@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hotels/search")
+@RequestMapping("/api/v1/hotels/search")
 @RequiredArgsConstructor
 @Slf4j
 public class HotelBrowseController {
