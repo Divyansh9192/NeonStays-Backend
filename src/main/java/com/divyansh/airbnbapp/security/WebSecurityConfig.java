@@ -35,6 +35,7 @@ import java.util.List;
 public class WebSecurityConfig {
 
     private final JWTAuthFilter jwtAuthFilter;
+
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver handlerExceptionResolver;
@@ -45,45 +46,42 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
-
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/google/callback").permitAll()
-                        .requestMatchers("/", "/health").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
-                        .requestMatchers("/bookings/**").authenticated()
-                        .requestMatchers("/users/**").authenticated()
-                        .requestMatchers("/OPTIONS/**").permitAll()
-                        // Allow CORS preflight OPTIONS requests
-                        .anyRequest().permitAll()
-                )
-                .oauth2Login(oauth2Congif -> oauth2Congif
-                        .failureUrl("/login?error=true")
-                        .successHandler(oAuth2SuccessHandler))
-
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(headers -> headers
-                        // disable COOP
                         .crossOriginOpenerPolicy(coop ->
                                 coop.policy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.UNSAFE_NONE)
                         )
-
-                        // disable COEP
                         .crossOriginEmbedderPolicy(coep ->
                                 coep.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.UNSAFE_NONE)
                         )
                 )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/health").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/google/callback").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
+                        .requestMatchers("/bookings/**").authenticated()
+                        .requestMatchers("/users/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .oauth2Login(oauth -> oauth
+                        .failureUrl("/login?error=true")
+                        .successHandler(oAuth2SuccessHandler)
+                )
+                .exceptionHandling(exHandler ->
+                        exHandler.accessDeniedHandler(accessDeniedHandler())
+                );
 
+        // VERY IMPORTANT: add JWT filter LAST
+        httpSecurity.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-
-                .exceptionHandling(exHandler -> exHandler.accessDeniedHandler(accessDeniedHandler()));
         return httpSecurity.build();
     }
+
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -93,39 +91,29 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
-        return (request, response, accessDeniedException) -> {
-            handlerExceptionResolver.resolveException(request,response,null,accessDeniedException);
-        };
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) ->
+                handlerExceptionResolver.resolveException(request, response, null, accessDeniedException);
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // REQUIRED for cookies (refresh token)
         config.setAllowCredentials(true);
 
-        // Your frontend
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://neonstays-frontend.onrender.com"
+        ));
 
-        // Allow ALL typical headers including Authorization
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
-
-        // Expose Authorization (required for frontend)
         config.setExposedHeaders(List.of("Authorization"));
-
-        // Methods allowed
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // MOST IMPORTANT: allow sending cookies even if Chrome blocks certain patterns
-        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return source;
     }
-
-
-
 }
