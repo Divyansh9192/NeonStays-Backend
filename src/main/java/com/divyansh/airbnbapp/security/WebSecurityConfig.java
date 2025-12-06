@@ -56,7 +56,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
                         .requestMatchers("/bookings/**").authenticated()
                         .requestMatchers("/users/**").authenticated()
-                        .requestMatchers("OPTIONS/**").permitAll()
+                        .requestMatchers("/OPTIONS/**").permitAll()
                         // Allow CORS preflight OPTIONS requests
                         .anyRequest().permitAll()
                 )
