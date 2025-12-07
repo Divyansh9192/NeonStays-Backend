@@ -1,5 +1,6 @@
 package com.divyansh.airbnbapp.controller;
 
+import com.divyansh.airbnbapp.advice.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
     @GetMapping("/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("ok");
+    public ApiResponse<String> health() {
+        return new ApiResponse<>("ok");
     }
 }
