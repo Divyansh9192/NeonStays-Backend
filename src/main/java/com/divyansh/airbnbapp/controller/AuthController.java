@@ -66,6 +66,7 @@ public class AuthController {
                 .map(Cookie::getValue)
                 .orElseThrow(() -> new AuthenticationServiceException("Refresh Token not found inside the cookies"));
 
+        log.info("RefreshToken: {}",refreshToken);
         String accessToken = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(new LoginResponseDTO(accessToken));
     }
