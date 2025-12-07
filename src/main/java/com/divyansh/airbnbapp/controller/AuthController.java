@@ -50,7 +50,6 @@ public class AuthController {
                 .secure(false)
                 .sameSite("Lax")
                 .path("/")
-                .domain("localhost")
                 .maxAge(7 * 24 * 60 * 60)
         .build();
         httpServletResponse.setHeader("Set-Cookie",cookie.toString());
@@ -119,7 +118,6 @@ public class AuthController {
                 .secure(false)       // true in production
                 .sameSite("Lax")
                 .path("/")
-                .domain("localhost")
                 .maxAge(0)
                 .build();
 
