@@ -58,7 +58,7 @@ public class WebSecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/health").permitAll()
+                        .requestMatchers("/", "/health", "/api/v1/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/google/callback").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
