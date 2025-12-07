@@ -59,7 +59,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDTO> refresh(HttpServletRequest httpServletRequest) {
-
+        log.info("Getting the refreshToken");
         String refreshToken = Arrays.stream(httpServletRequest.getCookies())
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
