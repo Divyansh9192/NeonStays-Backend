@@ -54,7 +54,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             user = userService.save(newUser);
         }
         String[] tokens = oAuthResponseDTO.getTokens();
-        log.info("Tokens from OAuth service: {}", (Object) oAuthResponseDTO.getTokens());
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
                 .httpOnly(true)
                 .secure(true)
