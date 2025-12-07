@@ -104,7 +104,8 @@ public class WebSecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://neonstays-frontend.onrender.com"
+                "https://neonstays-frontend.onrender.com",
+                "https://neonstays.vercel.app"
         ));
 
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
