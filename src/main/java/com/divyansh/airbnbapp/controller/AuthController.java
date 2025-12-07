@@ -47,8 +47,8 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("None")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
         .build();
@@ -116,8 +116,8 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletRequest req,HttpServletResponse res){
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(false)       // true in production
-                .sameSite("Lax")
+                .secure(true)       // true in production
+                .sameSite("None")
                 .path("/")
                 .maxAge(0)
                 .build();
