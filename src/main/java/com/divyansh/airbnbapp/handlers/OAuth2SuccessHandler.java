@@ -60,7 +60,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .secure(false)
                 .sameSite("Lax")
                 .path("/")
-                .domain("localhost")
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
         response.addHeader("Set-Cookie",cookie.toString());
