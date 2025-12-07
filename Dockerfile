@@ -16,7 +16,9 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
-# Render will inject PORT dynamically
-EXPOSE 8080
+# Render assigns a port like 10000, 34622, etc.
+# EXPOSE MUST MATCH THE PORT SPRING BOOT ACTUALLY USES
+EXPOSE 10000
 
+# Bind Spring Boot to the Render-assigned $PORT
 ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=$PORT"]
