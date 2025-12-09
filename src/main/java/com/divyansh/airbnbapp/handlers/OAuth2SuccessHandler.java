@@ -45,14 +45,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String name = oAuth2User.getAttribute("name");
         log.info(name);
         OAuthResponseDTO oAuthResponseDTO = userService.loginOrCreateGoogleUser(email,name);
-        User user = oAuthResponseDTO.getUser();
-        if(user == null) {
-            User newUser = User.builder()
-                    .name(name)
-                    .email(email)
-                    .build();
-            user = userService.save(newUser);
-        }
         String[] tokens = oAuthResponseDTO.getTokens();
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
                 .httpOnly(true)
