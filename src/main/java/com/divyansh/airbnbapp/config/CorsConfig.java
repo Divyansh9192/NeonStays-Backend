@@ -15,17 +15,19 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration cors = new CorsConfiguration();
 
-        cors.setAllowedOriginPatterns(List.of("http://localhost:5173",
-                "https://neonstays-backend.onrender.com",
-                "https://neonstays.vercel.app"));
-
+        cors.setAllowedOrigins(List.of("https://neonstays.vercel.app"));
         cors.setAllowCredentials(true);
-        cors.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization"));
+
+        cors.setAllowedHeaders(List.of("*"));
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // MUST expose Set-Cookie so browser accepts cookies
+        cors.setExposedHeaders(List.of("Set-Cookie"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);
 
         return new CorsFilter(source);
     }
+
 }
