@@ -662,5 +662,3 @@ For issues, questions, or contributions:
 
 ---
 
-**Built with ❤️ using Spring Boot**
-
