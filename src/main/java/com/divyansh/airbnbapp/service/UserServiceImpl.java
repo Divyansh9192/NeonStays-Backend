@@ -12,6 +12,7 @@ import com.divyansh.airbnbapp.security.JWTService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -53,6 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new OAuthResponseDTO(user,arr);
     }
 
+    @Cacheable("usersByEmail")
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id)
