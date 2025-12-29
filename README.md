@@ -1,4 +1,4 @@
-# Airbnb Clone - Backend API
+# NeonStays - Backend API
 
 A comprehensive Spring Boot REST API for an Airbnb-like hotel booking platform with dynamic pricing, inventory management, and secure payment processing.
 
@@ -661,6 +661,4 @@ For issues, questions, or contributions:
 - All contributors and users of this project
 
 ---
-
-**Built with ❤️ using Spring Boot**
 
