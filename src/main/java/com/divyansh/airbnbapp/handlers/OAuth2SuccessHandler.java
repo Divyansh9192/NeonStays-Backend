@@ -1,11 +1,7 @@
 package com.divyansh.airbnbapp.handlers;
 
 import com.divyansh.airbnbapp.dto.OAuthResponseDTO;
-import com.divyansh.airbnbapp.entity.User;
-import com.divyansh.airbnbapp.security.JWTService;
 import com.divyansh.airbnbapp.service.UserService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +22,6 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserService userService;
-    private final JWTService jwtService;
     @Value("${frontend.url}")
     private String FRONTEND_URL;
 
@@ -35,15 +30,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException {
+            Authentication authentication) throws IOException {
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) token.getPrincipal();
 
-        log.info("OAuth Success for: " + oAuth2User.getAttribute("email"));
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
-        log.info(name);
         OAuthResponseDTO oAuthResponseDTO = userService.loginOrCreateGoogleUser(email,name);
         String[] tokens = oAuthResponseDTO.getTokens();
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens[1])
@@ -56,5 +49,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader("Set-Cookie",cookie.toString());
         // Redirect to frontend
         response.sendRedirect(FRONTEND_URL+"/oauth/success");
+        log.info("OAuth Success for: " + oAuth2User.getAttribute("email"));
+        log.info(name);
+
     }
 }
